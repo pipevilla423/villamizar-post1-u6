@@ -1,7 +1,7 @@
 
 ; lab6_modos.asm
 ; Unidad 6 - Arquitectura de Computadores
-; Parte 2: Modos de direccionamiento x86
+; Parte 2: Demostracion de modos de direccionamiento x86
 ; Compilar: nasm -f bin lab6_modos.asm -o lab6_modos.com
 
 org 100h
@@ -20,7 +20,7 @@ nota1    dw 85
 nota2    dw 73
 promedio dw 0
 
-; Variable de direccionamiento directo
+; Variable para direccionamiento directo
 var_x dw 0FFFFh
 
 ; Tabla hexadecimal para XLAT
@@ -53,22 +53,18 @@ inicio:
     MOV word [var_x], 0
 
 ; =========================================================
-; MODO 3: INDIRECTO POR REGISTRO
+; MODO 3: INDIRECTO POR REGISTRO SI
 ; =========================================================
 
-    ; Puntero a nota1
     MOV si, nota1        ; SI = direccion de nota1
     MOV ax, [si]         ; AX = 85
 
-    ; Puntero a nota2
     MOV si, nota2        ; SI = direccion de nota2
     MOV bx, [si]         ; BX = 73
 
-    ; Calcular promedio
     ADD ax, bx           ; AX = 158
     SHR ax, 1            ; AX = 79
 
-    ; Guardar promedio mediante puntero
     MOV si, promedio
     MOV [si], ax         ; promedio = 79
 
@@ -76,31 +72,60 @@ inicio:
 ; MODO 4: INDEXADO CON BASE E INDICE
 ; =========================================================
 
-    ; Acceder al tercer elemento: array[2] = 30
-    MOV bx, array        ; BX = direccion base
-    MOV si, 4            ; Desplazamiento: 2 * 2 bytes
-    MOV ax, [bx + si]    ; AX = 30 = 001Eh
+    ; Acceso a array[2] = 30
+    MOV bx, array
+    MOV si, 4
+    MOV ax, [bx + si]
 
-    ; Sumar todos los elementos del array
-    XOR ax, ax           ; AX = 0
-    MOV bx, array        ; BX = base del array
-    MOV cx, 5            ; Cinco elementos
-    XOR si, si           ; SI = 0
+    ; Suma acumulada del array
+    XOR ax, ax
+    MOV bx, array
+    MOV cx, 5
+    XOR si, si
 
 .bucle_array:
+    ADD ax, [bx + si]
+    ADD si, 2
+    LOOP .bucle_array
 
-    ADD ax, [bx + si]    ; Sumar elemento actual
-    ADD si, 2            ; Siguiente word
-    LOOP .bucle_array    ; Repetir hasta CX = 0
+    ; AX = 150 = 0096h
 
-    ; Resultado: AX = 150 = 0096h
+    ; Acceso a campos del registro
+    MOV bx, nota1
+    MOV ax, [bx]         ; AX = 85
+    MOV cx, [bx + 2]     ; CX = 73
+    MOV dx, [bx + 4]     ; DX = 79
 
-    ; Acceder a los campos del registro estudiante
-    MOV bx, nota1        ; BX = direccion base
+; =========================================================
+; MODO 3b: INDIRECTO CON BP - MARCO DE PILA
+; =========================================================
 
-    MOV ax, [bx]         ; AX = nota1 = 85
-    MOV cx, [bx + 2]     ; CX = nota2 = 73
-    MOV dx, [bx + 4]     ; DX = promedio = 79
+    ; Preservar BP original
+    PUSH bp
+
+    ; Crear marco de pila
+    MOV bp, sp
+
+    ; Reservar 4 bytes para dos variables locales
+    SUB sp, 4
+
+    ; Variable local 1 = 99
+    MOV word [bp - 2], 99
+
+    ; Variable local 2 = 250
+    MOV word [bp - 4], 250
+
+    ; Leer local 1 mediante BP
+    MOV ax, [bp - 2]     ; AX = 99 = 0063h
+
+    ; Sumar local 2
+    ADD ax, [bp - 4]     ; AX = 349 = 015Dh
+
+    ; Liberar las variables locales
+    MOV sp, bp
+
+    ; Restaurar BP original
+    POP bp
 
 ; =========================================================
 ; FIN DEL PROGRAMA
