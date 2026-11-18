@@ -41,3 +41,29 @@ inicio:
     PUSH ax              ; Guarda AX = 45
     MOV ax, 0FFFFh       ; Modifica AX temporalmente
     POP ax               ; Restaura AX = 45
+
+; -- BLOQUE 2: Operaciones aritmeticas ---------------------
+
+    ; ADD: suma con actualizacion de flags
+    MOV ax, [valor_a]    ; AX = 45
+    ADD ax, [valor_b]    ; AX = 57 (ZF=0, CF=0, OF=0)
+    MOV [resultado], ax  ; Guarda 57 en memoria
+
+    ; SUB: resta
+    MOV ax, [valor_b]    ; AX = 12
+    SUB ax, [valor_a]    ; AX = -33 (SF=1, OF=0)
+
+    ; INC y DEC: no modifican CF
+    MOV ax, [valor_a]    ; AX = 45
+    INC ax              ; AX = 46
+    DEC ax              ; AX = 45
+
+    ; MUL: multiplicacion sin signo de 8 bits
+    MOV al, 10          ; AL = 10
+    MOV bl, 7           ; BL = 7
+    MUL bl              ; AX = 10 * 7 = 70
+
+    ; DIV: division sin signo de 8 bits
+    MOV ax, 100         ; AX = 100
+    MOV bl, 7           ; BL = 7
+    DIV bl              ; AL = 14, AH = 2
