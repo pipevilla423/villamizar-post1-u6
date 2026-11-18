@@ -27,6 +27,11 @@ var_x dw 0FFFFh
 tabla_hex db 30h,31h,32h,33h,34h,35h,36h,37h
           db 38h,39h,41h,42h,43h,44h,45h,46h
 
+; Matriz 3x3 de enteros de 16 bits
+matriz dw 1, 2, 3
+       dw 4, 5, 6
+       dw 7, 8, 9
+
 ; =========================================================
 ; INICIO DEL PROGRAMA
 ; =========================================================
@@ -90,7 +95,7 @@ inicio:
 
     ; AX = 150 = 0096h
 
-    ; Acceso a campos del registro
+    ; Acceso a los campos del registro
     MOV bx, nota1
     MOV ax, [bx]         ; AX = 85
     MOV cx, [bx + 2]     ; CX = 73
@@ -106,7 +111,7 @@ inicio:
     ; Crear marco de pila
     MOV bp, sp
 
-    ; Reservar 4 bytes para dos variables locales
+    ; Reservar 4 bytes para variables locales
     SUB sp, 4
 
     ; Variable local 1 = 99
@@ -115,17 +120,50 @@ inicio:
     ; Variable local 2 = 250
     MOV word [bp - 4], 250
 
-    ; Leer local 1 mediante BP
+    ; Leer primera variable local
     MOV ax, [bp - 2]     ; AX = 99 = 0063h
 
-    ; Sumar local 2
+    ; Sumar segunda variable local
     ADD ax, [bp - 4]     ; AX = 349 = 015Dh
 
-    ; Liberar las variables locales
+    ; Liberar marco de pila
     MOV sp, bp
 
     ; Restaurar BP original
     POP bp
+
+; =========================================================
+; ACCESO A MATRIZ: DOBLE INDEXACION
+; =========================================================
+
+    ; Matriz de 3 filas y 3 columnas
+    ; Elemento buscado: matriz[1][2] = 6
+
+    ; Calcular desplazamiento de fila
+    MOV ax, 1           ; Fila = 1
+    MOV bx, 3           ; Tres columnas por fila
+
+    MUL bx              ; AX = 1 * 3 = 3
+    SHL ax, 1           ; AX = 3 * 2 = 6 bytes
+
+    MOV si, ax          ; SI = 0006h
+
+    ; Calcular desplazamiento de columna
+    MOV cx, 2           ; Columna = 2
+    SHL cx, 1           ; CX = 2 * 2 = 4 bytes
+
+    ; Sumar ambos desplazamientos
+    ADD si, cx          ; SI = 6 + 4 = 10 = 000Ah
+
+    ; Obtener direccion base de la matriz
+    MOV bx, matriz      ; BX = direccion de matriz
+
+    ; Acceder al elemento mediante base + indice
+    MOV dx, [bx + si]   ; DX = 6 = 0006h
+
+    ; Resultado final:
+    ; SI = 000Ah
+    ; DX = 0006h
 
 ; =========================================================
 ; FIN DEL PROGRAMA
