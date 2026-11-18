@@ -55,15 +55,44 @@ inicio:
 
     ; INC y DEC: no modifican CF
     MOV ax, [valor_a]    ; AX = 45
-    INC ax              ; AX = 46
-    DEC ax              ; AX = 45
+    INC ax               ; AX = 46
+    DEC ax               ; AX = 45
 
     ; MUL: multiplicacion sin signo de 8 bits
-    MOV al, 10          ; AL = 10
-    MOV bl, 7           ; BL = 7
-    MUL bl              ; AX = 10 * 7 = 70
+    MOV al, 10           ; AL = 10
+    MOV bl, 7            ; BL = 7
+    MUL bl               ; AX = 70
 
     ; DIV: division sin signo de 8 bits
-    MOV ax, 100         ; AX = 100
-    MOV bl, 7           ; BL = 7
-    DIV bl              ; AL = 14, AH = 2
+    MOV ax, 100          ; AX = 100
+    MOV bl, 7            ; BL = 7
+    DIV bl               ; AL = 14, AH = 2
+
+; -- BLOQUE 3: Operaciones logicas -------------------------
+
+    MOV al, 0B7h         ; AL = 10110111b
+
+    ; AND: conservar los 4 bits bajos
+    AND al, [mascara]    ; AL = 07h
+
+    MOV al, 0B7h         ; Restaurar AL
+
+    ; OR: activar los 4 bits altos
+    OR al, 0F0h          ; AL = F7h
+
+    MOV al, 0AAh         ; AL = 10101010b
+
+    ; XOR: inversion de bits
+    XOR al, 0FFh         ; AL = 55h
+
+    ; XOR: poner un registro en cero
+    XOR bx, bx           ; BX = 0000h
+
+    ; TEST: verificar un bit sin modificar AL
+    MOV al, 0B7h
+    TEST al, 01h         ; ZF = 0, bit 0 activado
+
+    ; SHL/SHR: desplazamientos de bits
+    MOV al, 08h          ; AL = 8
+    SHL al, 2            ; AL = 32 = 20h
+    SHR al, 1            ; AL = 16 = 10h
