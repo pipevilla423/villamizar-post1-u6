@@ -39,21 +39,38 @@ inicio:
 
     MOV ax, 100          ; AX = 0064h
     MOV bx, 0A5h         ; BX = 00A5h
-    ADD cx, 55           ; CX = CX + 0037h
-    AND dx, 00FFh        ; DX conserva el byte bajo
+    ADD cx, 55           ; CX = CX + 55
+    AND dx, 00FFh        ; DX conserva sus 8 bits bajos
 
 ; =========================================================
 ; MODO 2: DIRECCIONAMIENTO DIRECTO
 ; =========================================================
 
-    ; Leer variables mediante direcciones fijas
-
     MOV ax, [var_x]      ; AX = FFFFh
-    MOV bx, [array]      ; BX = 000Ah = 10 decimal
-    MOV cx, [nota1]      ; CX = 0055h = 85 decimal
+    MOV bx, [array]      ; BX = 000Ah = 10
+    MOV cx, [nota1]      ; CX = 0055h = 85
 
-    ; Escribir directamente en memoria
     MOV word [var_x], 0  ; var_x = 0000h
+
+; =========================================================
+; MODO 3: INDIRECTO POR REGISTRO
+; =========================================================
+
+    ; SI contiene la direccion de nota1
+    MOV si, nota1        ; SI = 010Ch
+    MOV ax, [si]         ; AX = 85 = 0055h
+
+    ; SI ahora apunta a nota2
+    MOV si, nota2        ; SI = 010Eh
+    MOV bx, [si]         ; BX = 73 = 0049h
+
+    ; Calcular promedio
+    ADD ax, bx           ; AX = 85 + 73 = 158
+    SHR ax, 1            ; AX = 79 = 004Fh
+
+    ; Guardar el promedio mediante un puntero
+    MOV si, promedio     ; SI = 0110h
+    MOV [si], ax         ; Memoria[0110h] = 004Fh
 
 ; =========================================================
 ; FIN TEMPORAL DEL PROGRAMA
