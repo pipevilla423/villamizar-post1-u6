@@ -44,3 +44,20 @@ En el Bloque 4 del laboratorio, el bucle realiza únicamente cinco iteraciones p
 ## Evidencias
 
 Las capturas de compilación, ejecución y depuración se almacenan en la carpeta `capturas/`.
+
+### Checkpoint 2: Trazado del modo indirecto por registro
+
+El direccionamiento indirecto permite acceder a los datos utilizando un registro que almacena su dirección de memoria. En este programa se utiliza SI como puntero para acceder a las notas del estudiante y almacenar el promedio calculado.
+
+| Instrucción | Registro modificado | Valor resultante |
+|---|---|---|
+| `MOV SI, nota1` | SI | 010Ch |
+| `MOV AX, [SI]` | AX | 0055h (85) |
+| `MOV SI, nota2` | SI | 010Eh |
+| `MOV BX, [SI]` | BX | 0049h (73) |
+| `ADD AX, BX` | AX | 009Eh (158) |
+| `SHR AX, 1` | AX | 004Fh (79) |
+| `MOV SI, promedio` | SI | 0110h |
+| `MOV [SI], AX` | Memoria DS:0110 | 004Fh (79) |
+
+**Conclusión:** el registro SI permite acceder a distintas posiciones de memoria sin cambiar la instrucción utilizada para leer o escribir el dato. Esto demuestra el funcionamiento de los punteros en lenguaje ensamblador.

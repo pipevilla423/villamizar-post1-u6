@@ -1,7 +1,7 @@
 
 ; lab6_modos.asm
 ; Unidad 6 - Arquitectura de Computadores
-; Parte 2: Demostracion de modos de direccionamiento x86
+; Parte 2: Modos de direccionamiento x86
 ; Compilar: nasm -f bin lab6_modos.asm -o lab6_modos.com
 
 org 100h
@@ -20,7 +20,7 @@ nota1    dw 85
 nota2    dw 73
 promedio dw 0
 
-; Variable para direccionamiento directo
+; Variable de direccionamiento directo
 var_x dw 0FFFFh
 
 ; Tabla hexadecimal para XLAT
@@ -28,7 +28,7 @@ tabla_hex db 30h,31h,32h,33h,34h,35h,36h,37h
           db 38h,39h,41h,42h,43h,44h,45h,46h
 
 ; =========================================================
-; CODIGO
+; INICIO DEL PROGRAMA
 ; =========================================================
 
 inicio:
@@ -37,43 +37,73 @@ inicio:
 ; MODO 1: DIRECCIONAMIENTO INMEDIATO
 ; =========================================================
 
-    MOV ax, 100          ; AX = 0064h
-    MOV bx, 0A5h         ; BX = 00A5h
-    ADD cx, 55           ; CX = CX + 55
-    AND dx, 00FFh        ; DX conserva sus 8 bits bajos
+    MOV ax, 100
+    MOV bx, 0A5h
+    ADD cx, 55
+    AND dx, 00FFh
 
 ; =========================================================
 ; MODO 2: DIRECCIONAMIENTO DIRECTO
 ; =========================================================
 
     MOV ax, [var_x]      ; AX = FFFFh
-    MOV bx, [array]      ; BX = 000Ah = 10
-    MOV cx, [nota1]      ; CX = 0055h = 85
+    MOV bx, [array]      ; BX = 10
+    MOV cx, [nota1]      ; CX = 85
 
-    MOV word [var_x], 0  ; var_x = 0000h
+    MOV word [var_x], 0
 
 ; =========================================================
 ; MODO 3: INDIRECTO POR REGISTRO
 ; =========================================================
 
-    ; SI contiene la direccion de nota1
-    MOV si, nota1        ; SI = 010Ch
-    MOV ax, [si]         ; AX = 85 = 0055h
+    ; Puntero a nota1
+    MOV si, nota1        ; SI = direccion de nota1
+    MOV ax, [si]         ; AX = 85
 
-    ; SI ahora apunta a nota2
-    MOV si, nota2        ; SI = 010Eh
-    MOV bx, [si]         ; BX = 73 = 0049h
+    ; Puntero a nota2
+    MOV si, nota2        ; SI = direccion de nota2
+    MOV bx, [si]         ; BX = 73
 
     ; Calcular promedio
-    ADD ax, bx           ; AX = 85 + 73 = 158
-    SHR ax, 1            ; AX = 79 = 004Fh
+    ADD ax, bx           ; AX = 158
+    SHR ax, 1            ; AX = 79
 
-    ; Guardar el promedio mediante un puntero
-    MOV si, promedio     ; SI = 0110h
-    MOV [si], ax         ; Memoria[0110h] = 004Fh
+    ; Guardar promedio mediante puntero
+    MOV si, promedio
+    MOV [si], ax         ; promedio = 79
 
 ; =========================================================
-; FIN TEMPORAL DEL PROGRAMA
+; MODO 4: INDEXADO CON BASE E INDICE
+; =========================================================
+
+    ; Acceder al tercer elemento: array[2] = 30
+    MOV bx, array        ; BX = direccion base
+    MOV si, 4            ; Desplazamiento: 2 * 2 bytes
+    MOV ax, [bx + si]    ; AX = 30 = 001Eh
+
+    ; Sumar todos los elementos del array
+    XOR ax, ax           ; AX = 0
+    MOV bx, array        ; BX = base del array
+    MOV cx, 5            ; Cinco elementos
+    XOR si, si           ; SI = 0
+
+.bucle_array:
+
+    ADD ax, [bx + si]    ; Sumar elemento actual
+    ADD si, 2            ; Siguiente word
+    LOOP .bucle_array    ; Repetir hasta CX = 0
+
+    ; Resultado: AX = 150 = 0096h
+
+    ; Acceder a los campos del registro estudiante
+    MOV bx, nota1        ; BX = direccion base
+
+    MOV ax, [bx]         ; AX = nota1 = 85
+    MOV cx, [bx + 2]     ; CX = nota2 = 73
+    MOV dx, [bx + 4]     ; DX = promedio = 79
+
+; =========================================================
+; FIN DEL PROGRAMA
 ; =========================================================
 
     INT 20h
