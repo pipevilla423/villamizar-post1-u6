@@ -34,6 +34,13 @@ Esta diferencia se comprueba utilizando el valor AL=81h (10000001b). Al ejecutar
 
 Por tanto, la elección técnica consiste en utilizar desplazamientos cuando interesa el efecto aritmético y se admite descartar bits, y rotaciones cuando se necesita preservar y redistribuir la información binaria.
 
+### Decisión técnica 2: Uso de LOOP frente a DEC/JNZ
+
+La elección entre las instrucciones `LOOP` y `DEC CX` seguido de `JNZ` depende de la legibilidad, el tamaño del código y el rendimiento esperado. La instrucción `LOOP` ofrece una ventaja de simplicidad porque realiza el decremento del registro CX y el salto condicional en una sola instrucción. Esto permite escribir bucles contados de forma más compacta y facilita la comprensión del código. Además, en el modo de 16 bits utilizado en DOSBox, `LOOP` ocupa normalmente dos bytes, mientras que la combinación `DEC CX` y `JNZ` requiere al menos tres bytes.
+
+Sin embargo, una menor cantidad de instrucciones no garantiza un menor tiempo de ejecución. En los procesadores x86 modernos, cada instrucción tiene un coste diferente de decodificación y ejecución interna. Algunas instrucciones complejas pueden requerir varias microoperaciones, mientras que otras más sencillas pueden procesarse de manera más eficiente. Por esta razón, la secuencia `DEC CX` y `JNZ` puede ejecutarse en menos ciclos de reloj que `LOOP`, aunque utilice dos instrucciones en lugar de una.
+
+En el Bloque 4 del laboratorio, el bucle realiza únicamente cinco iteraciones para calcular la suma acumulada de 1 a 5. En este caso, la diferencia de rendimiento entre ambas alternativas es prácticamente imperceptible, por lo que se considera preferible utilizar `LOOP` debido a su claridad y tamaño reducido. No obstante, si el mismo bucle se ejecutara millones de veces dentro de un programa de mayor tamaño, la diferencia acumulada de ciclos podría ser significativa. En ese escenario, convendría evaluar el rendimiento real sobre el procesador utilizado y considerar `DEC CX` seguido de `JNZ` cuando ofrezca mejores resultados.
 ## Evidencias
 
 Las capturas de compilación, ejecución y depuración se almacenan en la carpeta `capturas/`.
